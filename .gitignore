@@ -1,0 +1,21 @@
+# Database Config
+config/config.php
+config/database.php
+
+# Uploads
+uploads/logos/*
+uploads/products/*
+!uploads/logos/.gitkeep
+!uploads/products/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PHP Dependencies
+vendor/
+composer.lock
