@@ -1,24 +1,35 @@
+# Disable directory browsing
 Options -Indexes
-RewriteEngine On
-RewriteBase /pos/
 
-# Redirect to HTTPS (uncomment for production)
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# Security: Protect hidden files and directories
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
-# Allow direct file access for assets
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect to HTTPS (Always recommended for SaaS)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Block access to config directory
-RewriteRule ^config/ - [F,L]
+    # Handle Front Controller Pattern
+    # Ensure physical files and directories are served directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
 
-# Block access to database directory
-RewriteRule ^database/ - [F,L]
+    # Prevent access to specific sensitive directories
+    RewriteRule ^(config|database|cron|scratch)/ - [F,L]
+    RewriteRule ^\.git/ - [F,L]
+</IfModule>
 
-# PHP settings
-php_value upload_max_filesize 10M
-php_value post_max_size 10M
-php_value max_execution_time 60
-php_value session.gc_maxlifetime 28800
+# PHP Performance & Security Tweaks for cPanel
+<IfModule mod_php.c>
+    php_value upload_max_filesize 64M
+    php_value post_max_size 64M
+    php_value max_execution_time 300
+    php_value session.gc_maxlifetime 28800
+    php_flag display_errors Off
+</IfModule>
